@@ -1,13 +1,9 @@
-﻿namespace Examination.System.Api.Models;
+﻿namespace Examination.System.Core.Models;
 
-public class InstructorCourse
+public class InstructorCourse : BaseModel
 {
-    public int Id { get; set; }
-
     public int InstructorId { get; set; }
     public Instructor Instructor { get; set; }
-
     public int CourseId { get; set; }
     public Course Course { get; set; }
 }
-

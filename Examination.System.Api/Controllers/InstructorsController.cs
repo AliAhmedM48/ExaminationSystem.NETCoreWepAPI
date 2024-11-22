@@ -1,4 +1,5 @@
-﻿using Examination.System.Api.Data;
+﻿using Examination.System.Core.Interfaces.Services;
+using Examination.System.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Examination.System.Api.Controllers;
@@ -6,22 +7,48 @@ namespace Examination.System.Api.Controllers;
 [ApiController]
 public class InstructorsController : ControllerBase
 {
-    //[HttpPost]
-    //public Task Create(Instructor instructor)
-    //{
+    private readonly IInstructorService _instructorService;
 
-    //}
+    public InstructorsController(IInstructorService instructorService)
+    {
+        _instructorService = instructorService;
+    }
+
+
+    [HttpPost]
+    public async Task<IActionResult> CreateInstructor(Instructor instructor)
+    {
+        await _instructorService.CreateInstructor(instructor);
+        return Ok();
+    }
+
+    [HttpGet("email/{email}")]
+    public async Task<IActionResult> GetByEmail(string email)
+    {
+        var instructor = _instructorService.GetByEmail(email);
+        return Ok(instructor);
+    }
+
+    [HttpGet("id/{id}")]
+    public async Task<IActionResult> GetByEmail(int id)
+    {
+        var instructor = _instructorService.GetById(id);
+        return Ok(instructor);
+    }
+
 
     [HttpGet]
-    public async Task<IActionResult> Get(string name)
+    public async Task<IActionResult> GetAllInstructors()
     {
-        AppDbContext appDbContext = new AppDbContext();
+        var instructors = _instructorService.GetAll();
+        return Ok(instructors);
+    }
 
-        var instructor =
-            appDbContext.Instructors
-            .Where(x => x.Name.Contains("Aliiii"))
-            .FirstOrDefault();
 
-        return Ok(instructor);
+    [HttpPut]
+    public async Task<IActionResult> UpdateName(int id, string name)
+    {
+        await _instructorService.UpdateName(id, name);
+        return Ok();
     }
 }

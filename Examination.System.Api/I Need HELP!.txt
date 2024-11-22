@@ -1,0 +1,40 @@
+﻿        modelBuilder.Entity<Exam>()
+            .HasDiscriminator(e => e.ExamType)
+            .HasValue<FinalExam>("ExamType.Final")
+            .HasValue<QuizExam>("ExamType.Quiz");
+
+------------------------------------------------------------
+
+        //modelBuilder.Entity<BaseModel>().HasQueryFilter(b => !b.IsDeleted);
+
+------------------------------------------------------------
+
+    public async Task<int> AddAsync(ExamCreateViewModel examCreateViewModel)
+    {
+        var exam = new Exam
+        {
+            Date = examCreateViewModel.Date,
+            MaxGrade = examCreateViewModel.MaxGrade,
+            MaxTime = examCreateViewModel.MaxTime,
+            CreatedAt = DateTime.Now
+            #region Bad => Duplication
+            //ExamQuestions = examCreateViewModel.QuestionIds
+            //.Select(x => new ExamQuestions() { QuestionId = x }).ToList()
+            #endregion
+        };
+
+        await _examRepository.AddAsync(exam);
+
+        await _examRepository.SaveChangesAsync();
+
+        await _examQuestionsService.AddRangeAsync(
+              examCreateViewModel.QuestionIds
+              .Select(x => new ExamQuestionsCreateViewModel
+              {
+                  QuestionId = x,
+                  ExamId = exam.Id
+              }));
+        return exam.Id;
+    }
+
+------------------------------------------------------------
