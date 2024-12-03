@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Examination.System.Core.Models;
+using Examination.System.Core.Entities.MainEntities;
 using Examination.System.Core.ViewModels;
 
 namespace Examination.System.Core.MappingProfiles;

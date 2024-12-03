@@ -1,5 +1,6 @@
-﻿using Examination.System.Core.Interfaces.Services;
-using Examination.System.Core.ViewModels.Exams;
+﻿using Examination.System.Core.Interfaces.Services.MainEntities;
+using Examination.System.Core.ViewModels;
+using Examination.System.Core.ViewModels.Response;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Examination.System.Api.Controllers;
@@ -14,10 +15,54 @@ public class ExamsController : ControllerBase
         _examService = examService;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Create(ExamCreateViewModel examCreateViewModel)
+    [HttpGet]
+    public async Task<ActionResult<ResponseViewModel<List<ExamViewModel>>>> GetAllExams()
     {
-        await _examService.AddAsync(examCreateViewModel);
-        return Ok();
+        var responseViewModel = _examService.GetAll();
+        return Ok(responseViewModel);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ResponseViewModel<ExamViewModel>>> GetById(int id)
+    {
+        var responseViewModel = await _examService.GetByIdAsync(id);
+
+        if (!responseViewModel.IsSuccess) return BadRequest(responseViewModel);
+
+        return Ok(responseViewModel);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<ResponseViewModel<ExamViewModel>>> CreateExam(ExamCreateViewModel model)
+    {
+        var responseViewModel = await _examService.CreateAsync(model);
+
+        if (!responseViewModel.IsSuccess)
+        {
+            return BadRequest(responseViewModel);
+        };
+
+
+        return CreatedAtAction(nameof(GetById), new { id = responseViewModel.Data.Id }, responseViewModel);
+    }
+
+    [HttpPut]
+    public async Task<ActionResult<ResponseViewModel<ExamViewModel>>> UpdateExam(ExamEditViewModel model)
+    {
+        var responseViewModel = await _examService.EditAsync(model);
+
+        if (!responseViewModel.IsSuccess) return BadRequest(responseViewModel);
+
+        return Ok(responseViewModel);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<ResponseViewModel<bool>>> DeleteExam(int id)
+    {
+        var responseViewModel = await _examService.DeleteAsync(id);
+
+        if (!responseViewModel.IsSuccess) return BadRequest(responseViewModel);
+
+        return Ok(responseViewModel);
     }
 }

@@ -4,8 +4,10 @@ using AutoMapper;
 using Examination.System.Api.Config;
 using Examination.System.Api.Middlewares;
 using Examination.System.Core.MappingProfiles;
+using Examination.System.Core.Validation.Validators;
 using Examination.System.Repository;
 using Examination.System.Service;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Examination.System.Api;
@@ -51,6 +53,8 @@ public class Program
         });
 
         builder.Services.AddAutoMapper(typeof(CourseProfile).Assembly);
+
+        builder.Services.AddValidatorsFromAssemblyContaining<CourseCreateViewModelValidator>();
 
         var app = builder.Build();
 

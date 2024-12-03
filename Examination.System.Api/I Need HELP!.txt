@@ -1,4 +1,25 @@
-﻿        modelBuilder.Entity<Exam>()
+﻿{
+  "title": "What is the capital of France?",
+  "description": "This question tests knowledge about European capitals.",
+  "difficultyLevel": 1,
+  "choices": [
+    {
+      "text": "Paris"
+    },
+    {
+      "text": "London"
+    },
+    {
+      "text": "Berlin"
+    },
+    {
+      "text": "Madrid"
+    }
+  ]
+}
+
+---------------------------------------------------------------
+        modelBuilder.Entity<Exam>()
             .HasDiscriminator(e => e.ExamType)
             .HasValue<FinalExam>("ExamType.Final")
             .HasValue<QuizExam>("ExamType.Quiz");

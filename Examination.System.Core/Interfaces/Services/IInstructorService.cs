@@ -1,4 +1,4 @@
-﻿using Examination.System.Core.Models;
+﻿using Examination.System.Core.Entities.MainEntities;
 
 namespace Examination.System.Core.Interfaces.Services;
 

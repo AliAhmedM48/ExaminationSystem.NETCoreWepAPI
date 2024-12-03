@@ -1,5 +1,5 @@
-﻿using Examination.System.Core.Interfaces.Repositories;
-using Examination.System.Core.Models;
+﻿using Examination.System.Core.Entities;
+using Examination.System.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq.Expressions;
@@ -17,12 +17,23 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseMode
         _dbSet = _appDbContext.Set<TEntity>();
     }
 
+
     public async Task AddAsync(TEntity entity)
     {
         entity.CreatedAt = DateTime.Now;
         //entity.CreatedBy=userId;
 
         await _dbSet.AddAsync(entity);
+    }
+
+    public async Task AddRangeAsync(IEnumerable<TEntity> entities)
+    {
+        foreach (var entity in entities)
+        {
+            entity.CreatedAt = DateTime.Now;
+
+        }
+        await _dbSet.AddRangeAsync(entities);
     }
 
     public void Delete(TEntity entity)
@@ -34,6 +45,16 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseMode
         //SaveInclude(entity, nameof(entity.IsDeleted));
         SaveInclude(entity, p => p.IsDeleted, p => p.DeletedAt);
     }
+
+    public void DeleteRange(IEnumerable<TEntity> entities)
+    {
+        foreach (var entity in entities)
+        {
+            Delete(entity);
+        }
+    }
+
+
     public void Undelete(TEntity entity)
     {
         entity.IsDeleted = false;
@@ -45,9 +66,13 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseMode
     public void HardDelete(TEntity entity) => _dbSet.Remove(entity);
     public IQueryable<TEntity> GetAll() => _dbSet.Where(e => !e.IsDeleted);
     public IQueryable<TEntity> GetAllWithDeleted() => _dbSet;
-    public TEntity? GetById(int id) => _dbSet.FirstOrDefault(x => x.Id == id);
-    public IQueryable<TEntity> Get(Expression<Func<TEntity, bool>> expression) => GetAll().Where(expression);
+    public async Task<TEntity?> GetByIdAsync(int id) => await GetAll().FirstOrDefaultAsync(x => x.Id == id);
+    public IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> expression) => GetAll().Where(expression);
+
+
     public async Task SaveChangesAsync() => await _appDbContext.SaveChangesAsync();
+
+
 
     public void SaveInclude(TEntity entity, params Expression<Func<TEntity, object>>[] propertyExpressions)
     {
@@ -64,8 +89,8 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseMode
         foreach (var propertyExpression in propertyExpressions)
         {
             var propertyToUpdate = entityEntry.Property(propertyExpression);
-            var properyName = propertyToUpdate.Metadata.Name;
-            propertyToUpdate.CurrentValue = entity.GetType().GetProperty(properyName)?.GetValue(entity);
+            var propertyName = propertyToUpdate.Metadata.Name;
+            propertyToUpdate.CurrentValue = entity.GetType().GetProperty(propertyName)?.GetValue(entity);
             propertyToUpdate.IsModified = true;
         }
 
@@ -100,4 +125,14 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseMode
                 propertyEntry.IsModified = true;
         }
     }
+
+    public void SaveIncludeRange(IEnumerable<TEntity> entities, params Expression<Func<TEntity, object>>[] propertyExpressions)
+    {
+        foreach (var entity in entities)
+        {
+            SaveInclude(entity, propertyExpressions);
+        }
+    }
+
+    public async Task<bool> DoesEntityExist(int id) => await _dbSet.AnyAsync(e => e.Id == id);
 }

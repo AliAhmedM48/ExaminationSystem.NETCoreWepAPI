@@ -1,6 +1,6 @@
-﻿using Examination.System.Core.Interfaces.Repositories;
+﻿using Examination.System.Core.Entities.JoinEntities;
+using Examination.System.Core.Interfaces.Repositories;
 using Examination.System.Core.Interfaces.Services;
-using Examination.System.Core.Models;
 
 namespace Examination.System.Service;
 public class StudentCourseService : IStudentCourseService

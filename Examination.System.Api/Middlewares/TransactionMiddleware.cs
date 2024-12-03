@@ -30,7 +30,7 @@ public class TransactionMiddleware
             if (transaction is not null)
                 await transaction.RollbackAsync();
 
-            _logger.LogError(ex, "An error occurred while processing the transaction.");
+            _logger.LogError(ex.Message, "#ANA_MN_EL_TransactionMiddleware#An error occurred while processing the transaction.");
             throw;
         }
     }

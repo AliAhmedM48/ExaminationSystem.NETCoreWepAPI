@@ -21,14 +21,14 @@ public class GlobalErrorHandlerMiddleware
         catch (Exception ex)
         {
             var requestId = Guid.NewGuid();
-            _logger.LogError(ex, $"RequestId: {requestId} - An error occurred while processing the request.");
+            _logger.LogError(ex.Message, $"RequestId: {requestId} - An error occurred while processing the request.");
 
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
             context.Response.ContentType = "application/json";
 
             var errorResponse = new
             {
-                message = "An unexpected error occurred. Please try again later.",
+                message = "#ANA_MN_EL_GlobalErrorHandlerMiddleware#=>An unexpected error occurred. Please try again later.",
                 requestId = requestId.ToString()
             };
 

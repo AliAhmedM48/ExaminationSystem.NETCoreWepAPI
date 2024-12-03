@@ -1,5 +1,7 @@
-﻿using Examination.System.Core.Interfaces.Services;
+﻿using Examination.System.Core.Enums.Response;
+using Examination.System.Core.Interfaces.Services.MainEntities;
 using Examination.System.Core.ViewModels;
+using Examination.System.Core.ViewModels.Response;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Examination.System.Api.Controllers;
@@ -16,46 +18,54 @@ public class CoursesController : ControllerBase
 
 
     [HttpGet]
-    public async Task<IActionResult> GetAllCourse()
+    public async Task<ActionResult<ResponseViewModel<List<CourseViewModel>>>> GetAllCourse()
     {
-        var courseViewModels = _courseService.GetAll();
-        return Ok(courseViewModels);
+        var responseViewModel = _courseService.GetAll();
+        return Ok(responseViewModel);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<ActionResult<ResponseViewModel<CourseViewModel>>> GetById(int id)
     {
-        var courseViewModel = _courseService.GetById(id);
-        return Ok(courseViewModel);
+        var responseViewModel = await _courseService.GetByIdAsync(id);
+
+        if (!responseViewModel.IsSuccess)
+        {
+            return responseViewModel.BusinessErrorCode == BusinessErrorCode.CourseNotFound
+            ? NotFound(responseViewModel)
+            : BadRequest(responseViewModel);
+        }
+
+        return Ok(responseViewModel);
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateCourse(CourseCreateViewModel model)
+    public async Task<ActionResult<ResponseViewModel<CourseViewModel>>> CreateCourse(CourseCreateViewModel model)
     {
-        await _courseService.AddAsync(model);
-        return Ok();
+        var responseViewModel = await _courseService.CreateAsync(model);
+
+        if (!responseViewModel.IsSuccess) BadRequest(responseViewModel);
+
+        return CreatedAtAction(nameof(GetById), new { id = responseViewModel.Data.Id }, responseViewModel);
     }
 
     [HttpPut]
-    public async Task<IActionResult> UpdateCourse(CourseEditViewModel model)
+    public async Task<ActionResult<ResponseViewModel<CourseViewModel>>> UpdateCourse(CourseEditViewModel model)
     {
-        await _courseService.Update(model);
-        return Ok();
-    }
+        var responseViewModel = await _courseService.EditAsync(model);
 
-    [HttpPatch]
-    public async Task<IActionResult> AssignCourse(int studentId, int courseId)
-    {
-        await _courseService.Assign(studentId, courseId);
-        return Ok();
+        if (!responseViewModel.IsSuccess) return BadRequest(responseViewModel);
+
+        return Ok(responseViewModel);
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteCourse(int id)
+    public async Task<ActionResult<ResponseViewModel<bool>>> DeleteCourse(int id)
     {
-        await _courseService.Delete(id);
-        return NoContent();
+        var responseViewModel = await _courseService.DeleteAsync(id);
+
+        if (!responseViewModel.IsSuccess) return BadRequest(responseViewModel);
+
+        return Ok(responseViewModel);
     }
-
-
 }

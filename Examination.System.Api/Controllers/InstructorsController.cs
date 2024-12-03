@@ -1,5 +1,5 @@
-﻿using Examination.System.Core.Interfaces.Services;
-using Examination.System.Core.Models;
+﻿using Examination.System.Core.Entities.MainEntities;
+using Examination.System.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Examination.System.Api.Controllers;
